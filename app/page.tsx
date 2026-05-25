@@ -13,8 +13,9 @@ const T = {
       badge: '✦ Bientôt sur l\'App Store',
       h1a: 'Nourris',
       h1b: 'ton éclat.',
-      sub: 'Le coach nutrition bienveillant pensé pour les femmes de 30 à 50 ans. Intelligence artificielle, base CIQUAL et suivi du cycle hormonal — tout dans ta poche.',
+      sub: 'Le coach nutrition qui comprend les femmes — vraiment. Intelligence artificielle, base CIQUAL et suivi du cycle hormonal — tout dans ta poche.',
       placeholder: 'ton@email.fr',
+      placeholderName: 'Ton prénom',
       cta: 'Me prévenir à la sortie →',
       note: 'Gratuit · Aucun spam · Désabonnement en un clic',
     },
@@ -99,8 +100,9 @@ const T = {
       badge: '✦ Coming soon to the App Store',
       h1a: 'Nourish',
       h1b: 'your radiance.',
-      sub: 'The caring nutrition coach designed for women aged 30 to 50. Artificial intelligence, CIQUAL food database and hormonal cycle tracking — all in your pocket.',
+      sub: 'The nutrition coach that truly understands women. Artificial intelligence, CIQUAL food database and hormonal cycle tracking — all in your pocket.',
       placeholder: 'your@email.com',
+      placeholderName: 'Your first name',
       cta: 'Notify me at launch →',
       note: 'Free · No spam · Unsubscribe anytime',
     },
@@ -298,10 +300,10 @@ function PhoneMockup() {
 export default function Home() {
   const [lang, setLang] = useState<Lang>('fr')
   const [email, setEmail] = useState('')
+  const [firstName, setFirstName] = useState('')
   const [submitted, setSubmitted] = useState(false)
-  const t = T[lang]
-
   const [submitting, setSubmitting] = useState(false)
+  const t = T[lang]
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -311,7 +313,7 @@ export default function Home() {
       await fetch('/api/waitlist', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, lang }),
+        body: JSON.stringify({ email, firstName, lang }),
       })
     } finally {
       setSubmitting(false)
@@ -415,17 +417,27 @@ export default function Home() {
                   </div>
                 </div>
               ) : (
-                <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md">
-                  <input
-                    type="email" value={email} onChange={e => setEmail(e.target.value)}
-                    placeholder={t.hero.placeholder} required
-                    className="flex-1 px-5 py-3.5 rounded-2xl text-sm outline-none transition-all"
-                    style={{ background: 'white', border: '1.5px solid #EDE0D4', color: '#1C0E0A', fontFamily: 'var(--font-jakarta)' }}
-                    onFocus={e => (e.currentTarget.style.borderColor = '#E05780')}
-                    onBlur={e => (e.currentTarget.style.borderColor = '#EDE0D4')}
-                  />
+                <form onSubmit={handleSubmit} className="flex flex-col gap-3 max-w-md">
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    <input
+                      type="text" value={firstName} onChange={e => setFirstName(e.target.value)}
+                      placeholder={t.hero.placeholderName}
+                      className="sm:w-40 px-5 py-3.5 rounded-2xl text-sm outline-none transition-all"
+                      style={{ background: 'white', border: '1.5px solid #EDE0D4', color: '#1C0E0A', fontFamily: 'var(--font-jakarta)' }}
+                      onFocus={e => (e.currentTarget.style.borderColor = '#E05780')}
+                      onBlur={e => (e.currentTarget.style.borderColor = '#EDE0D4')}
+                    />
+                    <input
+                      type="email" value={email} onChange={e => setEmail(e.target.value)}
+                      placeholder={t.hero.placeholder} required
+                      className="flex-1 px-5 py-3.5 rounded-2xl text-sm outline-none transition-all"
+                      style={{ background: 'white', border: '1.5px solid #EDE0D4', color: '#1C0E0A', fontFamily: 'var(--font-jakarta)' }}
+                      onFocus={e => (e.currentTarget.style.borderColor = '#E05780')}
+                      onBlur={e => (e.currentTarget.style.borderColor = '#EDE0D4')}
+                    />
+                  </div>
                   <button type="submit" disabled={submitting}
-                    className="px-6 py-3.5 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all"
+                    className="px-6 py-3.5 rounded-2xl text-sm font-semibold transition-all"
                     style={{ background: 'linear-gradient(135deg, #E05780, #C47B5A)', color: 'white', opacity: submitting ? 0.7 : 1 }}>
                     {submitting ? '...' : t.hero.cta}
                   </button>
@@ -641,6 +653,10 @@ export default function Home() {
               </p>
             ) : (
               <>
+                <input type="text" value={firstName} onChange={e => setFirstName(e.target.value)}
+                  placeholder={t.hero.placeholderName}
+                  className="px-5 py-3.5 rounded-2xl text-sm outline-none"
+                  style={{ background: 'rgba(255,255,255,0.08)', border: '1.5px solid rgba(255,255,255,0.15)', color: 'white', fontFamily: 'var(--font-jakarta)' }} />
                 <input type="email" value={email} onChange={e => setEmail(e.target.value)}
                   placeholder={t.hero.placeholder} required
                   className="flex-1 px-5 py-3.5 rounded-2xl text-sm outline-none"

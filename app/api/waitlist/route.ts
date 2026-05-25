@@ -3,7 +3,7 @@ import { Resend } from 'resend'
 
 const resend = new Resend(process.env.RESEND_API_KEY)
 
-const EMAIL_FR = (email: string) => `
+const EMAIL_FR = (email: string, firstName?: string) => `
 <!DOCTYPE html>
 <html lang="fr">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -29,10 +29,10 @@ const EMAIL_FR = (email: string) => `
         <tr>
           <td style="padding:48px 48px 40px;">
             <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:36px;font-weight:600;color:#1C0E0A;line-height:1.1;">
-              Tu es sur la liste ✦
+              ${firstName ? `Bienvenue ${firstName} ✦` : 'Tu es sur la liste ✦'}
             </h1>
             <p style="margin:0 0 24px;font-size:16px;color:#5C3D2E;line-height:1.7;">
-              Merci de rejoindre Niamh. Tu seras parmi les premières à savoir quand l'app arrive sur l'App Store.
+              Merci de rejoindre Niamh${firstName ? ` !` : '.'} Tu seras parmi les premières à savoir quand l'app arrive sur l'App Store.
             </p>
             <p style="margin:0 0 32px;font-size:15px;color:#8C7B73;line-height:1.7;">
               En attendant, suis-nous pour les updates — et prépare-toi à nourrir ton éclat.
@@ -75,7 +75,7 @@ const EMAIL_FR = (email: string) => `
 </html>
 `
 
-const EMAIL_EN = (email: string) => `
+const EMAIL_EN = (email: string, firstName?: string) => `
 <!DOCTYPE html>
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
@@ -101,10 +101,10 @@ const EMAIL_EN = (email: string) => `
         <tr>
           <td style="padding:48px 48px 40px;">
             <h1 style="margin:0 0 16px;font-family:Georgia,serif;font-size:36px;font-weight:600;color:#1C0E0A;line-height:1.1;">
-              You're on the list ✦
+              ${firstName ? `Welcome ${firstName} ✦` : "You're on the list ✦"}
             </h1>
             <p style="margin:0 0 24px;font-size:16px;color:#5C3D2E;line-height:1.7;">
-              Thank you for joining Niamh. You'll be among the first to know when the app launches on the App Store.
+              Thank you for joining Niamh${firstName ? '!' : '.'} You'll be among the first to know when the app launches on the App Store.
             </p>
             <p style="margin:0 0 32px;font-size:15px;color:#8C7B73;line-height:1.7;">
               In the meantime, check out our website for updates — and get ready to nourish your radiance.
@@ -149,7 +149,7 @@ const EMAIL_EN = (email: string) => `
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, lang } = await request.json() as { email: string; lang: string }
+    const { email, firstName, lang } = await request.json() as { email: string; firstName?: string; lang: string }
 
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
       return NextResponse.json({ error: 'Invalid email' }, { status: 400 })
@@ -163,6 +163,7 @@ export async function POST(request: NextRequest) {
     // Add to Resend Audience (handles duplicates gracefully)
     await resend.contacts.create({
       email: email.toLowerCase(),
+      firstName: firstName?.trim() || undefined,
       audienceId,
       unsubscribed: false,
     })
@@ -174,7 +175,7 @@ export async function POST(request: NextRequest) {
       subject: lang === 'en'
         ? "You're on the Niamh waitlist ✦"
         : "Tu es sur la liste d'attente Niamh ✦",
-      html: lang === 'en' ? EMAIL_EN(email) : EMAIL_FR(email),
+      html: lang === 'en' ? EMAIL_EN(email, firstName) : EMAIL_FR(email, firstName),
     })
 
     return NextResponse.json({ success: true })
