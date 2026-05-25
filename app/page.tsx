@@ -301,10 +301,22 @@ export default function Home() {
   const [submitted, setSubmitted] = useState(false)
   const t = T[lang]
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitting, setSubmitting] = useState(false)
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!email) return
-    setSubmitted(true)
+    if (!email || submitting) return
+    setSubmitting(true)
+    try {
+      await fetch('/api/waitlist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, lang }),
+      })
+    } finally {
+      setSubmitting(false)
+      setSubmitted(true)
+    }
   }
 
   return (
@@ -412,12 +424,10 @@ export default function Home() {
                     onFocus={e => (e.currentTarget.style.borderColor = '#E05780')}
                     onBlur={e => (e.currentTarget.style.borderColor = '#EDE0D4')}
                   />
-                  <button type="submit"
+                  <button type="submit" disabled={submitting}
                     className="px-6 py-3.5 rounded-2xl text-sm font-semibold whitespace-nowrap transition-all"
-                    style={{ background: 'linear-gradient(135deg, #E05780, #C47B5A)', color: 'white' }}
-                    onMouseEnter={e => (e.currentTarget.style.opacity = '0.9')}
-                    onMouseLeave={e => (e.currentTarget.style.opacity = '1')}>
-                    {t.hero.cta}
+                    style={{ background: 'linear-gradient(135deg, #E05780, #C47B5A)', color: 'white', opacity: submitting ? 0.7 : 1 }}>
+                    {submitting ? '...' : t.hero.cta}
                   </button>
                 </form>
               )}
@@ -635,10 +645,10 @@ export default function Home() {
                   placeholder={t.hero.placeholder} required
                   className="flex-1 px-5 py-3.5 rounded-2xl text-sm outline-none"
                   style={{ background: 'rgba(255,255,255,0.08)', border: '1.5px solid rgba(255,255,255,0.15)', color: 'white', fontFamily: 'var(--font-jakarta)' }} />
-                <button type="submit"
+                <button type="submit" disabled={submitting}
                   className="px-6 py-3.5 rounded-2xl text-sm font-semibold whitespace-nowrap"
-                  style={{ background: 'linear-gradient(135deg, #E05780, #FF8FAB)', color: 'white' }}>
-                  {t.hero.cta}
+                  style={{ background: 'linear-gradient(135deg, #E05780, #FF8FAB)', color: 'white', opacity: submitting ? 0.7 : 1 }}>
+                  {submitting ? '...' : t.hero.cta}
                 </button>
               </>
             )}
