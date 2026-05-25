@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     description: 'Coach nutrition IA bienveillant pour les femmes 30–50.',
   },
   robots: { index: true, follow: true },
-  icons: { icon: '/favicon.ico' },
+  icons: { icon: '/icon' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
